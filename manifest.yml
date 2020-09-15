@@ -1,7 +1,7 @@
 applications:
   - name: ibm-challenge-8
     path: .
-    command: node index.js
+    command: node src/server.js
     instances: 1
     routes:
       - route: maratona-ibm-challenge-8.mybluemix.net
