@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 
 const multerConfig = require('./config/multer-config');
+const core = require('./core');
 
 const app = express();
 const upload = multer(multerConfig);
@@ -15,34 +16,79 @@ app.post('/api/recommend', upload.single('audio'), (req, res) => {
     });
   }
 
-  if (req.body.text) {
-    console.log('Texto recebido: ' + req.body.text);
-  }
+  const car = req.body.car;
+  let text;
+  let audio;
 
-  if (req.file) {
-    console.log('tem audio');
-    try {
-      const audioFile = fs.readFileSync(req.file.path);
-
-      return res.json({ audioFile });
-    } catch (err) {
-      console.error('err', err);
-
-      return res.json({ err });
-    } finally {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch {
-        console.error('Remoção do arquivo com erros.');
-      }
-    }
-  }
-
-  res.json({
-    recommendation: '',
+  const response = {
     entities: [],
-  });
+    recommendation: '',
+  };
+
+  if (req.body.text) {
+    text = req.body.text;
+  }
+
+  core
+    .process(req.file.path, text)
+    .then((val) => {
+      console.log('===========result');
+      console.log(val.result);
+      response.entities = val.result.entities;
+
+      res.json({
+        recommendation: response.recommendation,
+        entities: response.entities,
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 });
+
+// if (req.file) {
+//   try {
+//     const audioFile = fs.readFileSync(req.file.path);
+
+//     audio = audioFile;
+
+//     const result = core.process(req.file.path);
+//     console.log('===========result');
+//     console.log(result);
+
+//     res.json({
+//       recommendation: response.recommendation,
+//       entities: response.entities,
+//     });
+//   } catch (err) {
+//     console.error('err', err);
+
+//     return res.json({ err });
+//   } finally {
+//     try {
+//       fs.unlinkSync(req.file.path);
+//     } catch {
+//       console.error('Remoção do arquivo com erros.');
+//     }
+//   }
+// } else {
+//   core
+//     .process(null, text)
+//     .then((val) => {
+//       console.log('===========result');
+//       console.log(val.result.entities);
+//       response.entities = val.result.entities;
+
+//       res.json({
+//         recommendation: response.recommendation,
+//         entities: response.entities,
+//       });
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//     });
+// }
+// });
 
 module.exports = {
   app,

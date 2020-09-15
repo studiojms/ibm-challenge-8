@@ -15,31 +15,41 @@ const speechToText = new SpeechToTextV1({
   serviceUrl: STS_URL,
 });
 
-const recognizeParams = {
-  audio: fs.createReadStream('audio_sample.flac'),
-  contentType: 'audio/flac',
-  model: 'pt-BR_BroadbandModel',
-  //model: 'pt-BR_NarrowbandModel',
-  wordAlternativesThreshold: 0.9,
-  //keywords: ['colorado', 'tornado', 'tornadoes'],
-  //keywordsThreshold: 0.5,
-};
+function process(file, text) {
+  if (file) {
+    const recognizeParams = {
+      audio: fs.createReadStream(file),
+      contentType: 'audio/flac',
+      model: 'pt-BR_BroadbandModel',
+      //model: 'pt-BR_NarrowbandModel',
+      wordAlternativesThreshold: 0.9,
+      //keywords: ['colorado', 'tornado', 'tornadoes'],
+      //keywordsThreshold: 0.5,
+    };
 
-speechToText
-  .recognize(recognizeParams)
-  .then((speechRecognitionResults) => {
-    console.log(JSON.stringify(speechRecognitionResults, null, 2));
+    return speechToText
+      .recognize(recognizeParams)
+      .then((speechRecognitionResults) => {
+        console.log(JSON.stringify(speechRecognitionResults, null, 2));
 
-    const transcripts = speechRecognitionResults.result.results
-      .filter((r) => r.final)
-      .map((r) => r.alternatives.map((alternative) => alternative.transcript));
+        const transcripts = speechRecognitionResults.result.results
+          .filter((r) => r.final)
+          .map((r) => r.alternatives.map((alternative) => alternative.transcript));
 
-    transcripts.map((t) => console.log(t));
-    transcripts.map((t) => processNLU(t));
-  })
-  .catch((err) => {
-    console.log('error:', err);
-  });
+        transcripts.map((t) => {
+          console.log('====transcripts====');
+          console.log(t);
+        });
+
+        return processNLU(transcripts.join(', '));
+      })
+      .catch((err) => {
+        console.log('error:', err);
+      });
+  } else {
+    return processNLU(text);
+  }
+}
 
 function processNLU(text) {
   const naturalLanguageUnderstanding = new NaturalLanguageUnderstandingV1({
@@ -61,12 +71,17 @@ function processNLU(text) {
     },
   };
 
-  naturalLanguageUnderstanding
+  return naturalLanguageUnderstanding
     .analyze(analyzeParams)
     .then((analysisResults) => {
-      console.log(JSON.stringify(analysisResults, null, 2));
+      console.log('analysisResults', analysisResults);
+      return analysisResults;
     })
     .catch((err) => {
       console.log('error:', err);
     });
 }
+
+module.exports = {
+  process,
+};
