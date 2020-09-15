@@ -1,0 +1,14 @@
+applications:
+  - name: ibm-challenge-8
+    path: .
+    command: node index.js
+    instances: 1
+    routes:
+      - route: maratona-ibm-challenge-8.mybluemix.net
+    random-route: true
+    memory: 128M
+    env:
+      STS_APIKEY: ABC
+      STS_URL: www.abc.com
+      NLU_APIKEY: asc
+      NLU_URL: www.abc.com

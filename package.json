@@ -1,0 +1,25 @@
+{
+  "name": "ibm-challenge-8",
+  "version": "1.0.0",
+  "description": "Last challenge of IBM's behind the code marathon (https://www.maratona.dev/pt)",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "ibm-watson": "^5.7.0",
+    "multer": "^1.4.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/studiojms/ibm-challenge-8.git"
+  },
+  "author": "studiojms",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/studiojms/ibm-challenge-8/issues"
+  },
+  "homepage": "https://github.com/studiojms/ibm-challenge-8#readme"
+}
