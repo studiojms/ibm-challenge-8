@@ -37,15 +37,10 @@ function doProcess(file, text) {
           .filter((r) => r.final)
           .map((r) => r.alternatives.map((alternative) => alternative.transcript));
 
-        transcripts.map((t) => {
-          console.log('====transcripts====');
-          console.log(t);
-        });
-
         return processNLU(transcripts.join(', '));
       })
       .catch((err) => {
-        console.log('error:', err);
+        console.error('error:', err);
       });
   } else {
     return processNLU(text);
@@ -80,7 +75,7 @@ function processNLU(text) {
       return analysisResults;
     })
     .catch((err) => {
-      console.log('error:', err);
+      console.error('error:', err);
     });
 }
 

@@ -12,3 +12,4 @@ applications:
       STS_URL: www.abc.com
       NLU_APIKEY: asc
       NLU_URL: www.abc.com
+      NLU_MODEL_ID: teste

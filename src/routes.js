@@ -39,29 +39,60 @@ app.post('/api/recommend', upload.single('audio'), (req, res) => {
   }
 
   core
-    .process(req.file ? req.file.path : null, text)
+    .process(audio, text)
     .then((val) => {
-      console.log('===========result');
-      console.log('val', val);
-      console.log('val.result', val.result);
-      response.entities = val.result.entities;
+      response.entities = val && val.result ? val.result.entities : [];
 
-      const modelos = val.result.entities.filter((entity) => entity.type == 'MODELO');
+      const possiveisModelos = [
+        'TORO',
+        'DUCATO',
+        'FIORINO',
+        'CRONOS',
+        'FIAT 500',
+        'MAREA',
+        'LINEA',
+        'ARGO',
+        'RENEGADE',
+      ];
 
+      let modeloEncontrado = response.recommendation;
+
+      const modelos = response.entities.filter((entity) => entity.type == 'MODELO');
       if (modelos && modelos.length > 0) {
         const sortedModelos = _.sortBy(modelos, ['sentiment.score', 'confidence']);
-        const result = sortedModelos.map((m) => m.text).filter((modelo) => modelo.toLowerCase() != car.toLowerCase());
+        const result = sortedModelos
+          .map((m) => m.text)
+          .filter(
+            (modelo) =>
+              !modelo.toLowerCase().includes(car.toLowerCase()) && !car.toLowerCase().includes(modelo.toLowerCase())
+          );
 
-        response.recommendation = _.first(result);
+        modeloEncontrado = possiveisModelos.filter((m) =>
+          _.first(result) ? _.first(result).toUpperCase().includes(m) : false
+        );
       }
 
+      response.entities = response.entities
+        .filter((entity) => entity.type != 'MODELO')
+        .map((entity) => {
+          return {
+            entity: entity.type,
+            mention: entity.text,
+            sentiment: entity.sentiment.score,
+          };
+        });
+
       res.json({
-        recommendation: response.recommendation,
+        recommendation: modeloEncontrado,
         entities: response.entities,
       });
     })
     .catch((err) => {
       console.error(err);
+      res.json({
+        recommendation: response.recommendation,
+        entities: response.entities,
+      });
     });
 });
 
