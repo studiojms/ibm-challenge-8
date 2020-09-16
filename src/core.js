@@ -7,6 +7,7 @@ const STS_APIKEY = process.env.STS_APIKEY || '';
 const STS_URL = process.env.STS_URL || '';
 const NLU_APIKEY = process.env.NLU_APIKEY || '';
 const NLU_URL = process.env.NLU_URL || '';
+const NLU_MODEL_ID = process.env.NLU_MODEL_ID || '';
 
 const speechToText = new SpeechToTextV1({
   authenticator: new IamAuthenticator({
@@ -15,7 +16,7 @@ const speechToText = new SpeechToTextV1({
   serviceUrl: STS_URL,
 });
 
-function process(file, text) {
+function doProcess(file, text) {
   if (file) {
     const recognizeParams = {
       audio: fs.createReadStream(file),
@@ -67,6 +68,7 @@ function processNLU(text) {
       entities: {
         sentiment: true,
         limit: 2,
+        model: NLU_MODEL_ID,
       },
     },
   };
@@ -83,5 +85,5 @@ function processNLU(text) {
 }
 
 module.exports = {
-  process,
+  process: doProcess,
 };
